@@ -110,6 +110,10 @@ static cl::opt<bool> ScalarReplacement("scal-rep", cl::init(true),
 static cl::opt<bool> LoopUnroll("unroll-loops", cl::init(true),
                                 cl::desc("Unroll Affine Loops"));
 
+static cl::opt<bool> SubIndexToSubView(
+    "subindex-to-subview", cl::init(false),
+    cl::desc("Convert polygeist::SubIndexOp to memref::SubViewOp"));
+
 static cl::opt<bool>
     DetectReduction("detect-reduction", cl::init(false),
                     cl::desc("Detect reduction in inner most loop"));
@@ -515,6 +519,8 @@ int main(int argc, char **argv) {
       if (ScalarReplacement)
         optPM.addPass(mlir::createAffineScalarReplacementPass());
     }
+    if (SubIndexToSubView)
+      pm.addPass(polygeist::createSubIndexToSubViewPass());
     if (mlir::failed(pm.run(module.get()))) {
       module->dump();
       return 4;
